@@ -1,0 +1,11 @@
+config.json
+.venv/
+output/*
+!output/.gitkeep
+assets/fonts/*
+!assets/fonts/.gitkeep
+assets/sfx/*
+!assets/sfx/.gitkeep
+assets/bgm/*
+!assets/bgm/.gitkeep
+__pycache__/
