@@ -1,4 +1,4 @@
-"""목소리 비교: 3개 목소리 × 3단계 차분함 = 9개 샘플을 만들고, 고른 번호를 config.json 에 저장."""
+"""목소리 비교: 3개 목소리 × 4단계 차분함 = 12개 샘플을 만들고, 고른 번호를 config.json 에 저장."""
 from __future__ import annotations
 
 import json
@@ -19,6 +19,7 @@ VOICES = [
 PRESETS = [
     # 이름, 빠르기, 음높이, 장면 사이 쉼(초)
     ("기본", "+12%", "+0Hz", 0.15),
+    ("중간", "+6%", "-2Hz", 0.22),
     ("차분", "+0%", "-3Hz", 0.30),
     ("아주차분", "-8%", "-6Hz", 0.45),
 ]
@@ -45,7 +46,9 @@ def main() -> int:
     cfg = load_config()
     out = OUTPUT / "voice_test"
     out.mkdir(parents=True, exist_ok=True)
-    print("목소리 샘플 9개를 만드는 중… (30초~1분)")
+    for old in out.glob("*.wav"):  # 이전 번호 체계의 샘플과 헷갈리지 않도록 정리
+        old.unlink(missing_ok=True)
+    print(f"목소리 샘플 {len(VOICES) * len(PRESETS)}개를 만드는 중… (30초~1분)")
     made = 0
     for n, v, vname, pname, rate, pitch, gap in options():
         c = dict(cfg, voice=v, voice_rate=rate, voice_pitch=pitch)
