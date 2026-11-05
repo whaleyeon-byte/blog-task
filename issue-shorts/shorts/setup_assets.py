@@ -8,7 +8,7 @@ import zipfile
 from .config import ASSETS
 
 URL = "https://github.com/orioncactus/pretendard/releases/download/v1.3.9/Pretendard-1.3.9.zip"
-WANT = ["Pretendard-ExtraBold.otf", "Pretendard-Bold.otf"]
+WANT = ["Pretendard-ExtraBold.otf", "Pretendard-Bold.otf", "Pretendard-Black.otf"]
 
 
 def main() -> int:

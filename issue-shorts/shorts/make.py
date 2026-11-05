@@ -18,12 +18,13 @@ from pathlib import Path
 
 import numpy as np
 
-from . import media, render, sfx, tts
+from . import media, motion, render, sfx, tts
 from .config import ASSETS, OUTPUT, ROOT, load_config
 
 TAIL = 0.6        # 마지막 여운(초)
 SUB_MAX = 16      # 자막 한 덩어리 최대 글자수(공백 포함)
 TARGET_MAX = 59.0
+LAYOUTS = {"hook", "text", "point", "number", "vs", "image", "cta"}
 
 
 # ---------------------------------------------------------------- 검증
@@ -49,6 +50,13 @@ def load_script(path: Path) -> dict:
             errs.append(f"scenes[{i}].sfx '{sc['sfx']}' 는 {sorted(sfx.KINDS)} 중 하나여야 함")
         if not isinstance(sc.get("highlight", []), list):
             errs.append(f"scenes[{i}].highlight 는 배열이어야 함")
+        lay = sc.get("layout")
+        if lay and lay not in LAYOUTS:
+            errs.append(f"scenes[{i}].layout '{lay}' 는 {sorted(LAYOUTS)} 중 하나여야 함")
+        if lay == "vs" and not (isinstance(sc.get("left"), dict) and isinstance(sc.get("right"), dict)):
+            errs.append(f"scenes[{i}] layout 'vs' 에는 left/right 객체가 필요함")
+        if lay == "number" and not motion.parse_number(str(sc.get("number", ""))):
+            errs.append(f"scenes[{i}] layout 'number' 에는 숫자가 들어간 number 값이 필요함")
     if errs:
         sys.exit("[오류] 대본 검증 실패:\n  - " + "\n  - ".join(errs))
     return s
@@ -148,9 +156,10 @@ def build(script_path: Path, engine: str | None = None, keep_work: bool = False,
     n = int(total * media.SR) + media.SR
     voice_track = np.zeros(n, dtype=np.float32)
     fx_track = np.zeros(n, dtype=np.float32)
-    for i, ((start, _), a, sc) in enumerate(zip(timeline, voices, scenes)):
+    kinds = [sc.get("sfx") or ("alert" if i == 0 else "ding" if i == len(scenes) - 1 else "whoosh")
+             for i, sc in enumerate(scenes)]
+    for i, ((start, _), a, kind) in enumerate(zip(timeline, voices, kinds)):
         media.place(voice_track, a, start, 1.0)
-        kind = sc.get("sfx", "alert" if i == 0 else "whoosh")
         fx = sfx.get_sfx(kind, cfg, log)
         if fx is not None:
             clip = media.normalize(media.decode(ffmpeg, fx)[: int(2.5 * media.SR)], 1.0)
@@ -169,13 +178,43 @@ def build(script_path: Path, engine: str | None = None, keep_work: bool = False,
     wav = work / "mix.wav"
     media.write_wav(wav, mix)
 
-    # 4) 프레임
+    # 4~5) 영상
     script_dir = script_path.resolve().parent
     channel = render.clean(cfg.get("channel_name", ""))
+    images = [_resolve_image(sc.get("image", ""), script_dir, work, log) for sc in scenes]
+    final = out_dir / "short.mp4"
+    style = script.get("style") or cfg.get("style", "motion")
+    if style == "motion":
+        starts = [0.0] + [timeline[i][0] for i in range(1, len(scenes))]
+        spans = [(starts[i], starts[i + 1] if i + 1 < len(scenes) else total) for i in range(len(scenes))]
+        chunk_lists = []
+        for sc in scenes:
+            ch = chunk_subtitles(sc["text"])
+            chunk_lists.append(list(zip(ch, _weights(ch))))
+        rd = motion.Renderer(script, scenes, spans, [t_[0] for t_ in timeline], chunk_lists, images,
+                             cfg["font_path"], channel, kinds)
+        rd.cover().save(out_dir / "cover.png")
+        motion.encode(rd, total, wav, final, ffmpeg, log)
+    else:
+        _render_cards(script, scenes, timeline, images, total, GAP, channel, cfg, work, wav, final, out_dir, log)
+
+    # 6) 업로드 정보
+    write_upload_info(out_dir / "upload.txt", script, total)
+    shutil.copy(script_path, out_dir / "script.json")
+    if not keep_work:
+        shutil.rmtree(work, ignore_errors=True)
+
+    log(f"✔ 완성: {final}  ({total:.1f}초, {time.time() - t0:.0f}초 소요)")
+    return final
+
+
+def _render_cards(script, scenes, timeline, images, total, GAP, channel, cfg, work, wav, final, out_dir, log):
+    """예전 방식(style: card) — 정지 카드 + 자막."""
+    ffmpeg = cfg["ffmpeg_path"]
     entries = []
     k = 0
     for i, (sc, (start, dur)) in enumerate(zip(scenes, timeline)):
-        image = _resolve_image(sc.get("image", ""), script_dir, work, log)
+        image = images[i]
         chunks = chunk_subtitles(sc["text"])
         # 장면 시작 ~ 다음 장면 시작까지를 덩어리 비율로 나눈다
         span = dur + (GAP if i < len(scenes) - 1 else TAIL)
@@ -197,23 +236,12 @@ def build(script_path: Path, engine: str | None = None, keep_work: bool = False,
             fh.write(f"file '{name}'\nduration {d:.3f}\n")
         fh.write(f"file '{entries[-1][0]}'\n")  # concat demuxer 마지막 프레임 규칙
 
-    # 5) 인코딩
-    final = out_dir / "short.mp4"
     media.run([ffmpeg, "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", str(lst),
                "-i", str(wav), "-vf", "fps=30,format=yuv420p", "-c:v", "libx264",
                "-preset", "medium", "-crf", "20", "-c:a", "aac", "-b:a", "192k",
                "-movflags", "+faststart", "-t", f"{total:.3f}", str(final)], "영상 인코딩")
     # 썸네일용 첫 화면
     shutil.copy(work / "f0001.png", out_dir / "cover.png")
-
-    # 6) 업로드 정보
-    write_upload_info(out_dir / "upload.txt", script, total)
-    shutil.copy(script_path, out_dir / "script.json")
-    if not keep_work:
-        shutil.rmtree(work, ignore_errors=True)
-
-    log(f"✔ 완성: {final}  ({total:.1f}초, {time.time() - t0:.0f}초 소요)")
-    return final
 
 
 def write_upload_info(path: Path, s: dict, total: float) -> None:

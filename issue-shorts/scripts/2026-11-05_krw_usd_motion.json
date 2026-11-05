@@ -1,0 +1,32 @@
+{
+  "title": "환율 1340원대 3일째, 연말엔?",
+  "title_highlight": ["1340원대", "3일째"],
+  "slug": "krw_usd_motion",
+  "category": "economy",
+  "badge": "오늘의 환율",
+  "youtube_title": "환율 1340원대 3일째… 연말 1300원 vs 1370원, 누가 맞을까 #shorts",
+  "description": "원·달러 환율이 사흘째 1340원대입니다. 연말 전망이 엇갈리는 이유를 정리했습니다. 투자 권유가 아닌 정보 제공 목적입니다.",
+  "hashtags": ["환율", "원달러", "경제뉴스", "재테크"],
+  "sources": [
+    "머니투데이 - 1340원대 환율, 연말 어디로…추가 하락·반등 전망 팽팽 (2026-11-04) - https://mt.co.kr/index.php/economy/2026/11/04/2026110415565250066",
+    "잡포스트 - [오늘의 환율] 2026년 11월 5일 원·달러 환율 1338.80원 - https://www.job-post.co.kr/news/articleView.html?idxno=236647"
+  ],
+  "source_label": "머니투데이·잡포스트",
+  "scenes": [
+    {"text": "달러 환율이 사흘째 1340원대에서 꿈쩍도 안 합니다. 연말엔 어떻게 될까요?",
+     "lines": ["환율", "1340원대"], "sticker": "3일째", "highlight": ["1340원대", "연말"], "sfx": "alert"},
+    {"text": "11월 4일, 원 달러 환율은 1341원 50전에 마감했습니다.",
+     "layout": "number", "number": "1341.5", "unit": "원", "label": "11월 4일 마감", "highlight": ["1341원 50전"]},
+    {"text": "5일 아침엔 1338원 80전. 하루 만에 3원 70전 내렸습니다.",
+     "layout": "number", "number": "1338.8", "unit": "원", "label": "11월 5일 · 하나은행 기준", "delta": "▼ 3.7원", "highlight": ["3원 70전"]},
+    {"text": "그런데 연말 전망은 정반대입니다. 우리은행은 1370원, iM증권은 1300원.",
+     "layout": "vs", "left": {"label": "우리은행", "value": "1370", "unit": "원", "arrow": "up"},
+     "right": {"label": "iM증권", "value": "1300", "unit": "원", "arrow": "down"}, "highlight": ["정반대"], "sfx": "boom"},
+    {"text": "내린다는 쪽 근거는 수출입니다. 수출이 잘 돼서 달러가 많이 들어오거든요.",
+     "layout": "point", "index": 1, "caption": "수출 호조 → 하락", "highlight": ["수출"]},
+    {"text": "오른다는 쪽은 프랑스 재정 불안과 중동 정세를 변수로 봅니다.",
+     "layout": "point", "index": 2, "caption": "대외 불안 → 반등", "highlight": ["프랑스", "중동"]},
+    {"text": "여행이나 직구 계획 있으면 환율 알림 꼭 켜 두세요. 매일 정리는 구독으로!",
+     "lines": ["직구·여행 전", "환율 알림 ON"], "highlight": ["환율 알림", "구독"], "sfx": "ding"}
+  ]
+}
