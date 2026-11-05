@@ -18,6 +18,8 @@ DEFAULTS = {
     "tts_engine": "edge",               # edge | dummy(테스트용 무음)
     "voice": "ko-KR-InJoonNeural",      # 남성. 여성: ko-KR-SunHiNeural
     "voice_rate": "+12%",
+    "voice_pitch": "+0Hz",              # 음 높낮이. 낮출수록 차분 (예: -4Hz)
+    "scene_gap": 0.15,                  # 장면 사이 쉼(초). 늘릴수록 차분
     "ffmpeg_path": "",
     "ffprobe_path": "",
     "font_path": "",

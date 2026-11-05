@@ -11,7 +11,7 @@ SR = 44100
 
 
 def run(cmd: list[str], what: str) -> None:
-    p = subprocess.run(cmd, capture_output=True)
+    p = subprocess.run(cmd, capture_output=True, stdin=subprocess.DEVNULL)
     if p.returncode != 0:
         tail = p.stderr.decode("utf-8", "replace")[-1500:]
         raise RuntimeError(f"{what} 실패 (ffmpeg 종료코드 {p.returncode})\n{tail}")
@@ -21,7 +21,7 @@ def decode(ffmpeg: str, path: Path | str) -> np.ndarray:
     """아무 오디오 파일 → float32 mono 44.1kHz 배열."""
     p = subprocess.run(
         [ffmpeg, "-v", "error", "-i", str(path), "-f", "s16le", "-ac", "1", "-ar", str(SR), "-"],
-        capture_output=True,
+        capture_output=True, stdin=subprocess.DEVNULL,
     )
     if p.returncode != 0:
         raise RuntimeError(f"오디오 읽기 실패: {path}\n{p.stderr.decode('utf-8', 'replace')[-800:]}")

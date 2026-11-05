@@ -96,7 +96,7 @@ if (Test-Path $cfgPath) {
 function Ask($key, $prompt, $default) {
     $cur = if ($cfg.Contains($key) -and $cfg[$key]) { [string]$cfg[$key] } else { $default }
     $shown = if ($key -like "*key*" -and $cur) { "(저장됨)" } elseif ($cur) { "(현재: $cur)" } else { "" }
-    $ans = Read-Host "$prompt $shown"
+    $ans = Read-Host ("$prompt $shown".TrimEnd())
     if ([string]::IsNullOrWhiteSpace($ans)) { return $cur }
     return $ans.Trim()
 }
@@ -104,11 +104,12 @@ function Ask($key, $prompt, $default) {
 Step "4/6 효과음 키 (선택)"
 Write-Host "   freesound.org 무료 가입 → https://freesound.org/apiv2/apply 에서 API 키 발급 → 붙여넣기"
 Write-Host "   건너뛰려면 Enter (내장 효과음 사용)"
-$cfg["freesound_api_key"] = Ask "freesound_api_key" "   API 키:" ""
+$cfg["freesound_api_key"] = Ask "freesound_api_key" "   API 키" ""
 
 Step "5/6 채널 이름 / 목소리"
-$cfg["channel_name"] = Ask "channel_name" "   채널 이름(영상 오른쪽 위 워터마크, 없으면 Enter):" ""
-Write-Host "   목소리: 1) 남성 인준(차분)  2) 여성 선희(밝음)  3) 남성 현수(뉴스톤)"
+$cfg["channel_name"] = Ask "channel_name" "   채널 이름(영상 오른쪽 위 워터마크, 없으면 Enter)" ""
+Write-Host "   목소리: 1) 남성 인준(차분)  2) 여성 선희(밝음)  3) 남성 현수(또박또박 뉴스톤)"
+    Write-Host "   (차분함·속도는 나중에 voice_test.bat 으로 들어보고 고를 수 있어요)"
 $curVoice = if ($cfg.Contains("voice")) { [string]$cfg["voice"] } else { "ko-KR-InJoonNeural" }
 $v = Read-Host "   번호 선택 (Enter = 현재 $curVoice 유지)"
 switch ($v.Trim()) {

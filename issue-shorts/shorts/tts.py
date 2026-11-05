@@ -26,7 +26,8 @@ def _edge(text: str, out: Path, cfg: dict) -> Path:
     last_err = None
     for attempt in range(1, 4):
         try:
-            comm = edge_tts.Communicate(text, cfg["voice"], rate=cfg.get("voice_rate", "+0%"))
+            comm = edge_tts.Communicate(text, cfg["voice"], rate=cfg.get("voice_rate", "+0%"),
+                                         pitch=cfg.get("voice_pitch", "+0Hz"))
             asyncio.run(comm.save(str(out)))
             if out.exists() and out.stat().st_size > 1000:
                 return out

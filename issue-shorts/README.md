@@ -20,6 +20,10 @@ Claude Code 에서 **"이슈 쇼츠 만들어줘"** 한마디로
 3. 결과: `output\날짜_제목\`
    - `short.mp4` 영상 · `cover.png` 첫 화면 · `upload.txt` 제목/설명/해시태그/출처/체크리스트
 
+## 목소리 고르기 (차분하게 / 빠르게)
+**`voice_test.bat` 더블클릭** → 목소리 3종 × 차분함 3단계 = 샘플 9개가 `output\voice_test\` 에 만들어집니다.
+들어보고 마음에 드는 **번호를 입력하면** 바로 저장되고, 다음 쇼츠부터 적용됩니다.
+
 ## 설정 바꾸기
 `setup_windows.bat` 을 다시 실행하면 됩니다(Enter = 기존 값 유지). 또는 `config.json` 직접 수정:
 
@@ -27,7 +31,9 @@ Claude Code 에서 **"이슈 쇼츠 만들어줘"** 한마디로
 |---|---|
 | `channel_name` | 오른쪽 위 워터마크 |
 | `voice` | `ko-KR-InJoonNeural`(남) · `ko-KR-SunHiNeural`(여) · `ko-KR-HyunsuMultilingualNeural`(남) |
-| `voice_rate` | 말 빠르기 `+12%` (쇼츠는 약간 빠르게) |
+| `voice_rate` | 말 빠르기 `+12%` (낮출수록 차분, 예: `-8%`) |
+| `voice_pitch` | 음 높낮이 `+0Hz` (낮출수록 차분, 예: `-6Hz`) |
+| `scene_gap` | 장면 사이 쉼(초) `0.15` (늘릴수록 차분) |
 | `freesound_api_key` | 효과음 키 (없으면 내장 효과음) |
 | `sfx_volume` / `bgm_volume` | 효과음 / 배경음 크기 |
 

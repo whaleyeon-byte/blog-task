@@ -21,7 +21,6 @@ import numpy as np
 from . import media, render, sfx, tts
 from .config import ASSETS, OUTPUT, ROOT, load_config
 
-GAP = 0.15        # 장면 사이 쉼(초)
 TAIL = 0.6        # 마지막 여운(초)
 SUB_MAX = 16      # 자막 한 덩어리 최대 글자수(공백 포함)
 TARGET_MAX = 59.0
@@ -119,6 +118,7 @@ def build(script_path: Path, engine: str | None = None, keep_work: bool = False,
     script = load_script(script_path)
     ffmpeg = cfg["ffmpeg_path"]
     scenes = script["scenes"]
+    GAP = float(cfg.get("scene_gap", 0.15))  # 장면 사이 쉼(초)
 
     out_dir = OUTPUT / f"{datetime.now():%Y%m%d_%H%M%S}_{_slug(script.get('slug') or script['title'])}"
     work = out_dir / "work"
